@@ -15,16 +15,10 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
-import com.arvind.quark.auth.LoginActivity;
-import com.firebase.ui.auth.AuthUI;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.FirebaseAuth;
+import com.arvind.quark.settings.SettingsActivity;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
-
-    private FirebaseAuth mAuth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,13 +36,10 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
-        mAuth = FirebaseAuth.getInstance();
-
         final Button signOutButton = findViewById(R.id.sign_out_button);
 
         signOutButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                signOut();
             }
         });
 
@@ -88,6 +79,8 @@ public class MainActivity extends AppCompatActivity
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+            final Intent settingsIntent = new Intent(this, SettingsActivity.class);
+            startActivity(settingsIntent);
             return true;
         }
 
@@ -96,7 +89,7 @@ public class MainActivity extends AppCompatActivity
 
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
-    public boolean onNavigationItemSelected(MenuItem item) {
+    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
@@ -118,19 +111,4 @@ public class MainActivity extends AppCompatActivity
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
-
-    private void signOut() {
-        final Intent intent = new Intent(this, LoginActivity.class);
-
-        AuthUI.getInstance()
-                .signOut(this)
-                .addOnCompleteListener(new OnCompleteListener<Void>() {
-
-                    public void onComplete(@NonNull Task<Void> task) {
-                        startActivity(intent);
-                        finish();
-                    }
-                });
-    }
-
 }
