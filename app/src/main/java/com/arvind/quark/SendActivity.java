@@ -34,11 +34,14 @@ public class SendActivity extends AppCompatActivity {
         contactsLiveData.observe(this, new Observer<List<Contact>>() {
             @Override
             public void onChanged(@Nullable List<Contact> contacts) {
-                final List<Contact> registeredContacts = contacts == null
-                                                         ? new ArrayList<Contact>()
-                                                         : filterNotRegistered(contacts);
+            final List<Contact> registeredContacts = contacts == null
+                                                     ? new ArrayList<Contact>()
+                                                     : filterNotRegistered(contacts);
             }
         });
+
+        // TODO: Add handler for input events to search bar that calls
+        // contactsLiveData.filter(partialContactName)
     }
 
     private List<Contact> filterNotRegistered(List<Contact> contacts) {
