@@ -1,11 +1,21 @@
 package com.arvind.quark.auth;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.arvind.quark.MainActivity;
 import com.arvind.quark.R;
 import com.firebase.ui.auth.AuthUI;
@@ -15,6 +25,8 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
+import org.json.JSONObject;
+
 import java.util.Arrays;
 import java.util.List;
 
@@ -22,6 +34,13 @@ public class LoginActivity extends AppCompatActivity {
 
     private static final int RC_SIGN_IN = 123;
     private FirebaseAuth mAuth;
+    RequestQueue requestQueue;
+    StringRequest stringRequest;
+    String url = "http://192.168.0.116:3000/login";
+    FirebaseAuth auth;
+    FirebaseUser firebaseUser;
+    String token;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,6 +88,11 @@ public class LoginActivity extends AppCompatActivity {
             if (resultCode == RESULT_OK) {
                 // Successfully signed in
                 FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+                assert user != null;
+                user.getIdToken(true);
+
+
+
                 // ...
             } else {
                 // Sign in failed, check response for error code
@@ -78,7 +102,7 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 
-    private void signOut() {
+    public void signOut() {
         AuthUI.getInstance()
                 .signOut(this)
                 .addOnCompleteListener(new OnCompleteListener<Void>() {
