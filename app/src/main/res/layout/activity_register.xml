@@ -19,13 +19,14 @@
             android:hint="Username"
             android:inputType="text" />
 
+
         <Button
-            android:id="@+id/create_user"
+            android:id="@+id/register"
             style="@style/FirebaseUI.Button"
             android:layout_width="wrap_content"
-            android:text="Create User"
+            android:text="Register"
             android:visibility="visible"
-            tools:text="Register User" />
+            tools:text="Register" />
 
     </LinearLayout>
 

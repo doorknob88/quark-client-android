@@ -1,8 +1,17 @@
 package com.arvind.quark;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.util.Log;
 
+import com.arvind.quark.util.Encryption;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
+
+import static android.content.Context.MODE_PRIVATE;
 
 public class GlobalValues {
     private static final GlobalValues ourInstance = new GlobalValues();
@@ -10,15 +19,12 @@ public class GlobalValues {
     //Put Everything that you'll use throughout the app in here.
 
     private String phoneNumber;
-    private String publicKey;
-    private String privateKey;
+    private String publicAddress;
+    private String seed;
     private String userName;
     private HashMap<String, String> contactMap;
-    private String hostURL = "http://192.168.0.116:3000";
+    private String hostURL = "http://quark.cash";
 
-    public static GlobalValues getOurInstance() {
-        return ourInstance;
-    }
 
     public String getPhoneNumber() {
         return phoneNumber;
@@ -28,61 +34,62 @@ public class GlobalValues {
         this.phoneNumber = phoneNumber;
     }
 
-    public String getPublicKey() {
-        return publicKey;
+    public String getPublicAddress() {
+        return publicAddress;
     }
 
-    public void setPublicKey(String publicKey) {
-        this.publicKey = publicKey;
-    }
-
-    public String getPrivateKey() {
-        return privateKey;
-    }
-
-    public void setPrivateKey(String privateKey) {
-        this.privateKey = privateKey;
+    public String getSeed() {
+        return seed;
     }
 
     public String getUserName() {
         return userName;
     }
 
-    public void setUserName(String userName) {
-        this.userName = userName;
-    }
 
     public HashMap<String, String> getContactMap() {
         return contactMap;
-    }
-
-    public void setContactMap(HashMap<String, String> contactMap) {
-        this.contactMap = contactMap;
     }
 
     public String getHostURL() {
         return hostURL;
     }
 
-    public void setHostURL(String hostURL) {
-        this.hostURL = hostURL;
-    }
-
-    public GlobalValues(String phoneNumber, String publicKey, String userName) {
-        this.phoneNumber = phoneNumber;
-        this.publicKey = publicKey;
-        this.userName = userName;
-        String TAG = this.getClass().getName();
-        Log.i(TAG, "GlobalValues Initilized");
-        Log.i(TAG, "Phone Number: "+ phoneNumber);
-        Log.i(TAG, "Public Key: "+ publicKey);
-        Log.i(TAG, "Username: "+ userName);
-    }
-
     public static GlobalValues getInstance() {
         return ourInstance;
     }
 
-    private GlobalValues() {
+    private GlobalValues(){
+
+    }
+
+    public GlobalValues getValues(Context context) {
+
+        SharedPreferences prefs = context.getSharedPreferences("store", MODE_PRIVATE);
+        String encryptedSeed = prefs.getString("encryptedSeed", null);
+        this.phoneNumber = prefs.getString("phoneNumber", null);
+        this.publicAddress = prefs.getString("publicAddress", null);
+        FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+        assert firebaseUser != null;
+        Encryption encryption = new Encryption(firebaseUser.getUid());
+        try {
+            this.seed = encryption.decrypt(encryptedSeed);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        this.userName = prefs.getString("username", null);
+        return ourInstance;
+    }
+
+    public void logout(Context context){
+        SharedPreferences.Editor editor = context.getSharedPreferences("store", MODE_PRIVATE).edit();
+        editor.putString("encryptedSeed", null);
+        editor.putString("publicAddress", null);
+        editor.putString("username", null);
+        editor.putString("phoneNumber", null).commit();
+        seed = null;
+        publicAddress = null;
+        userName = null;
+        phoneNumber = null;
     }
 }

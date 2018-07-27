@@ -8,11 +8,17 @@
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
         tools:showIn="@layout/app_bar_main"
         tools:context="com.arvind.quark.MainActivity">
-
+    <!--
     <Button
             android:text="@string/sign_out"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/sign_out_button"/>
+    -->
+    <TextView
+        android:textSize="20sp"
+        android:id="@+id/SharedPref_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
 
 </android.support.constraint.ConstraintLayout>

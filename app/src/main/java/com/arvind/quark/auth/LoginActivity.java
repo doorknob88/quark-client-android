@@ -3,6 +3,7 @@ package com.arvind.quark.auth;
 import android.app.DownloadManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
@@ -10,6 +11,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.Request;
@@ -41,17 +43,16 @@ public class LoginActivity extends AppCompatActivity {
 
     private static final int RC_SIGN_IN = 123;
     RequestQueue requestQueue;
-    String TAG = this.getClass().getName();
     private FirebaseAuth mAuth;
-
+    String TAG = this.getClass().getName();
+    GlobalValues globalValues;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+        requestQueue = Volley.newRequestQueue(getApplicationContext());
         mAuth = FirebaseAuth.getInstance();
-
         final Button signOutButton = findViewById(R.id.sign_out_button);
-
         signOutButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 signOut();
@@ -63,11 +64,15 @@ public class LoginActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
         FirebaseUser currentUser = mAuth.getCurrentUser();
+        try {
+            globalValues = GlobalValues.getInstance().getValues(this);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         if (currentUser == null) {
             List<AuthUI.IdpConfig> providers = Arrays.asList(
                     new AuthUI.IdpConfig.PhoneBuilder().build());
-
             startActivityForResult(
                     AuthUI.getInstance()
                             .createSignInIntentBuilder()
@@ -75,15 +80,18 @@ public class LoginActivity extends AppCompatActivity {
                             .build(),
                     RC_SIGN_IN);
         } else {
-            //Intent intent = new Intent(this, MainActivity.class);
-            //startActivity(intent);
-            connectToServer();
+            if (globalValues.getSeed() == null) {
+                connectToServer();
+            }else {
+                Intent intent = new Intent(this, MainActivity.class);
+                startActivity(intent);
+                finish();
+            }
         }
     }
 
     private void connectToServer(){
         final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        requestQueue = Volley.newRequestQueue(getApplicationContext());
         assert user != null;
         user.getIdToken(true).addOnSuccessListener(new OnSuccessListener<GetTokenResult>() {
             @Override
@@ -102,21 +110,26 @@ public class LoginActivity extends AppCompatActivity {
                                                 startActivity(intent);
                                             }
                                         }else {
-                                            if (response.has("uid")){
+                                            if (response.has("username")){
+                                                Log.i(TAG, "User received!"+ response.toString());
+                                                SharedPreferences.Editor editor = getSharedPreferences("store", MODE_PRIVATE).edit();
+                                                editor.putString("encryptedSeed", response.getString("encryptedSeed")).commit();
+                                                editor.putString("publicAddress", response.getString("publicAddress")).commit();
+                                                editor.putString("username", response.getString("username")).commit();
+                                                editor.putString("phoneNumber", user.getPhoneNumber()).commit();
 
-                                                new GlobalValues(
-                                                        user.getPhoneNumber(),
-                                                        response.getString("publicKey"),
-                                                        response.getString("username"));
-
-
-
+                                                Log.i(TAG, "Logged in, launching main activity!");
+                                                Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
+                                                startActivity(intent);
+                                                finish();
                                             }else {
                                                 Log.e(TAG, "Strange Message from Server");
                                                 Log.e(TAG, response.toString());
                                             }
                                         }
                                     } catch (JSONException e) {
+                                        e.printStackTrace();
+                                    } catch (Exception e) {
                                         e.printStackTrace();
                                     }
                                 }
@@ -147,6 +160,9 @@ public class LoginActivity extends AppCompatActivity {
             if (resultCode == RESULT_OK) {
                 // Successfully signed in
                 Log.i(TAG, "Firebase Signed in");
+                Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
+                startActivity(intent);
+                finish();
                 // ...
             } else {
                 Log.i(TAG, "Firebase Sign in Failed");
@@ -162,6 +178,16 @@ public class LoginActivity extends AppCompatActivity {
                 .signOut(this)
                 .addOnCompleteListener(new OnCompleteListener<Void>() {
                     public void onComplete(@NonNull Task<Void> task) {
+
+                        SharedPreferences.Editor editor = getSharedPreferences("store", MODE_PRIVATE).edit();
+                        editor.putString("encryptedSeed", null);
+                        editor.putString("publicAddress", null);
+                        editor.putString("username", null);
+                        editor.putString("phoneNumber", null).commit();
+
+                        Toast toast =  Toast.makeText(getApplicationContext(), GlobalValues.getInstance().getUserName(), Toast.LENGTH_LONG);
+                        toast.show();
+
                         finish();
                         startActivity(getIntent());
                     }
