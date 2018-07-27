@@ -43,12 +43,6 @@ import java.util.Map;
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
-    RequestQueue requestQueue;
-    StringRequest stringRequest;
-    String url = "http://192.168.0.116:3000/login";
-    FirebaseAuth auth;
-    FirebaseUser firebaseUser;
-    String token;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -61,39 +55,8 @@ public class MainActivity extends AppCompatActivity
 
             @Override
             public void onClick(View view) {
-                try {
-                    refreshUser(token);
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
                 Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
-            }
-        });
-
-        requestQueue = Volley.newRequestQueue(getApplicationContext());
-
-        auth = FirebaseAuth.getInstance();
-
-        firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
-
-        firebaseUser.getIdToken(true).addOnCompleteListener(new OnCompleteListener<GetTokenResult>() {
-            @Override
-            public void onComplete(@NonNull Task<GetTokenResult> task) {
-                if (task.isSuccessful()) {
-                    String idToken = task.getResult().getToken();
-                    // Send token to your backend via HTTPS
-                    token = idToken;
-                    try {
-                        refreshUser(idToken);
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-
-                    // ...
-                } else {
-                    // Handle error -> task.getException();
-                }
             }
         });
 
@@ -118,39 +81,6 @@ public class MainActivity extends AppCompatActivity
 
         NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
-    }
-
-    private void refreshUser(String idToken) throws JSONException {
-
-        JSONObject jsonObject = new JSONObject().put("token", idToken);
-        Log.i("TOKEN",idToken);
-        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
-                (Request.Method.POST, url,jsonObject, new Response.Listener<JSONObject>() {
-                    @Override
-                    public void onResponse(JSONObject response) {
-                        Log.i("RESPONSE: ", response.toString());
-                    }
-                }, new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        Log.i("ERROR: ", error.toString());
-                    }
-                });
-
-        stringRequest = new StringRequest(Request.Method.GET, url, new Response.Listener<String>() {
-            @Override
-            public void onResponse(String response) {
-                Log.i("RESPONSE", response);
-            }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                Log.e("ERROR", error.toString());
-            }
-        });
-
-        requestQueue.add(jsonObjectRequest);
-
     }
 
     @Override

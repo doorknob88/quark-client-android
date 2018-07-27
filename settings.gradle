@@ -1,1 +1,2 @@
-include ':app'
+include ':app', ':libsodium-jni-release'
+//project(':app').projectDir = new File('app')
