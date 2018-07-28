@@ -88,45 +88,7 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void onClick(View view) {
 
-                JSONObject temp = new JSONObject();
-
-                for (Map.Entry<String, Contact> entry : globalValues.getContactMap().entrySet()) {
-                    String key = entry.getKey();
-                    Contact value = entry.getValue();
-
-                    try {
-                        temp.put(key, value.getPhoneNumber());
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                }
-
-                Log.i(TAG, temp.toString());
-
-                JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
-                        ("", temp, new Response.Listener<JSONObject>() {
-                            @Override
-                            public void onResponse(JSONObject response) {
-                                if (response.has("found")){
-                                    try {
-                                        JSONArray results = response.getJSONArray("matched");
-                                        if (results.length() > 0){
-                                            for(int i = 0; i < results.length(); i++){
-                                                Log.i(TAG, "Matched!");
-
-                                            }
-                                        }
-                                    } catch (JSONException e) {
-                                        e.printStackTrace();
-                                    }
-                                }
-                            }
-                        }, new Response.ErrorListener() {
-                            @Override
-                            public void onErrorResponse(VolleyError error) {
-
-                            }
-                        });
+                matchContacts();
 
                 Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
@@ -218,5 +180,57 @@ public class MainActivity extends AppCompatActivity
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    private void matchContacts(){
+
+        JSONObject temp = new JSONObject();
+        for (Map.Entry<String, Contact> entry : globalValues.getContactMap().entrySet()) {
+            String key = entry.getKey();
+            Contact value = entry.getValue();
+
+            try {
+                temp.put(key, value.getPhoneNumber());
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+
+        /**
+         * The contact JSON should look like this:
+         *
+         *  {
+         *      "contact_ID" : "phoneNumber"
+         *  }
+         */
+
+        Log.i(TAG, temp.toString());
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
+                (globalValues.getHostURL()+"/contacts", temp, new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        if (response.has("found")){
+                            try {
+                                JSONArray results = response.getJSONArray("matched");
+                                if (results.length() > 0){
+                                    for(int i = 0; i < results.length(); i++){
+                                        Log.i(TAG, "Matched!");
+                                        Log.i(TAG, results.getString(i));
+                                    }
+                                }
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
+                }, new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+
+                    }
+                });
+
+
+        requestQueue.add(jsonObjectRequest);
     }
 }
