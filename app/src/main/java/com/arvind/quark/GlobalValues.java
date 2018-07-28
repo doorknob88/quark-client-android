@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Log;
 
+import com.arvind.quark.models.Contact;
 import com.arvind.quark.util.Encryption;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -22,8 +23,9 @@ public class GlobalValues {
     private String publicAddress;
     private String seed;
     private String userName;
-    private HashMap<String, String> contactMap;
-    private String hostURL = "http://quark.cash";
+    private HashMap<String, Contact> contactMap;
+    private HashMap<String, Contact> matchedContacts;
+    private String hostURL = "http://192.168.0.116:3000";
 
 
     public String getPhoneNumber() {
@@ -46,8 +48,10 @@ public class GlobalValues {
         return userName;
     }
 
-
-    public HashMap<String, String> getContactMap() {
+    public HashMap<String, Contact> getContactMap() {
+        if (contactMap == null){
+            contactMap = new HashMap<>();
+        }
         return contactMap;
     }
 
@@ -91,5 +95,12 @@ public class GlobalValues {
         publicAddress = null;
         userName = null;
         phoneNumber = null;
+    }
+
+    public HashMap<String, Contact> getMatchedContacts() {
+        if (matchedContacts == null){
+            matchedContacts = new HashMap<>();
+        }
+        return matchedContacts;
     }
 }
