@@ -10,6 +10,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import static android.content.Context.MODE_PRIVATE;
@@ -24,7 +25,7 @@ public class GlobalValues {
     private String seed;
     private String userName;
     private HashMap<String, Contact> contactMap;
-    private HashMap<String, Contact> matchedContacts;
+    private ArrayList<Contact> matchedContacts;
     private String hostURL = "http://quark.cash";
 
 
@@ -96,9 +97,9 @@ public class GlobalValues {
         phoneNumber = null;
     }
 
-    public HashMap<String, Contact> getMatchedContacts() {
+    public ArrayList<Contact> getMatchedContacts() {
         if (matchedContacts == null){
-            matchedContacts = new HashMap<>();
+            matchedContacts = new ArrayList<>();
         }
         return matchedContacts;
     }
