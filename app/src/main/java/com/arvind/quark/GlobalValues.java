@@ -25,7 +25,7 @@ public class GlobalValues {
     private String userName;
     private HashMap<String, Contact> contactMap;
     private HashMap<String, Contact> matchedContacts;
-    private String hostURL = "http://192.168.0.116:3000";
+    private String hostURL = "http://quark.cash";
 
 
     public String getPhoneNumber() {

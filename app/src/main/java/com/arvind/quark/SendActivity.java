@@ -20,13 +20,15 @@ import java.util.List;
 
 public class SendActivity extends AppCompatActivity {
     private LiveData<List<Contact>> contactsLiveData;
-
+    GlobalValues globalValues;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_send);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+
 
         ContactModel contactModel = ViewModelProviders.of(this).get(ContactModel.class);
         contactsLiveData = contactModel.getContacts();
@@ -54,7 +56,6 @@ public class SendActivity extends AppCompatActivity {
                 filtered.add(contact);
             }
         }
-
         return filtered;
     }
 }
