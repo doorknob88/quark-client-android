@@ -28,7 +28,7 @@ public class SendActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-
+        globalValues = GlobalValues.getInstance();
 
         ContactModel contactModel = ViewModelProviders.of(this).get(ContactModel.class);
         contactsLiveData = contactModel.getContacts();
