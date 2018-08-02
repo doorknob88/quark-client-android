@@ -184,13 +184,13 @@ public class MainActivity extends AppCompatActivity
 
     private void matchContacts(){
 
-        JSONObject temp = new JSONObject();
+        JSONObject jsonObject = new JSONObject();
         for (Map.Entry<String, Contact> entry : globalValues.getContactMap().entrySet()) {
             String key = entry.getKey();
             Contact value = entry.getValue();
-
             try {
-                temp.put(key, value.getPhoneNumber());
+                jsonObject.put(value.getPhoneNumber(), key);
+
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -198,15 +198,15 @@ public class MainActivity extends AppCompatActivity
 
         /**
          * The contact JSON should look like this:
-         *
          *  {
          *      "contact_ID" : "phoneNumber"
          *  }
+         *  Because contact_ID is the same for multiple contact groups.
          */
 
-        Log.i(TAG, temp.toString());
+        Log.i(TAG, jsonObject.toString());
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
-                (globalValues.getHostURL()+"/contacts", temp, new Response.Listener<JSONObject>() {
+                (globalValues.getHostURL()+"/contacts", jsonObject, new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
                         if (response.has("found")){
@@ -229,7 +229,6 @@ public class MainActivity extends AppCompatActivity
 
                     }
                 });
-
 
         requestQueue.add(jsonObjectRequest);
     }

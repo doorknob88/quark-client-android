@@ -68,7 +68,6 @@ public class GlobalValues {
     }
 
     public GlobalValues getValues(Context context) {
-
         SharedPreferences prefs = context.getSharedPreferences("store", MODE_PRIVATE);
         String encryptedSeed = prefs.getString("encryptedSeed", null);
         this.phoneNumber = prefs.getString("phoneNumber", null);
