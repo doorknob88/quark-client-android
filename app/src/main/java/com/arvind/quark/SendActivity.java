@@ -11,12 +11,14 @@ import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.renderscript.ScriptGroup;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
+import android.text.InputType;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -27,10 +29,15 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.arvind.quark.models.Contact;
 import com.arvind.quark.models.ContactModel;
+import com.arvind.quark.util.NanoUtil;
+import com.arvind.quark.util.NumberUtil;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -42,7 +49,7 @@ public class SendActivity extends AppCompatActivity {
     EditText editText;
     ListView listView;
     TextView noContactFoundTextView;
-
+    EditText sendAmount;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -71,29 +78,71 @@ public class SendActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Long tempLong = id;
 
-                Contact selectedContact = globalValues.getMatchedContacts().get(tempLong.intValue());
+                final Contact selectedContact = globalValues.getMatchedContacts().get(tempLong.intValue());
+
 
                 AlertDialog.Builder builder = new AlertDialog.Builder(SendActivity.this);
                 LayoutInflater inflater = SendActivity.this.getLayoutInflater();
 
-                builder.setView(inflater.inflate(R.layout.dialog_send, null))
-                        .setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int id) {
-                                // sign in the user ...
+                final EditText input = new EditText(getApplicationContext());
+                input.setInputType(InputType.TYPE_CLASS_NUMBER);
+                LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT,
+                        LinearLayout.LayoutParams.MATCH_PARENT);
+
+                input.setLayoutParams(lp);
+
+                builder.setView(input); // uncomment this line
+                builder.setOnCancelListener(new DialogInterface.OnCancelListener() {
+                    @Override
+                    public void onCancel(DialogInterface dialog) {
+
+                    }
+                });
+
+                builder.setPositiveButton("Send", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        String text = input.getText().toString();
+
+                        BigDecimal power = new BigDecimal("10").pow(24);
+                        BigInteger balance = new BigInteger(globalValues.getBalance());
+                        BigInteger amountTemp = new BigDecimal(text).multiply(power).toBigIntegerExact();
+
+                        Log.i(TAG, "Balance: " + balance.toString());
+                        Log.i(TAG, "amount " + amountTemp.toString());
+
+                        if (amountTemp.compareTo(balance) == -1){
+
+                            int duration = Toast.LENGTH_SHORT;
+                            Toast toast = null;
+                            toast = Toast.makeText(getApplicationContext(), "Insufficient Funds or out of sync. Try again.", duration);
+                            toast.show();
+                            return ;
+                        }else {
+                            int duration = Toast.LENGTH_SHORT;
+                            Toast toast = null;
+                            toast = Toast.makeText(getApplicationContext(), "Sending...", duration);
+                            toast.show();
+
+                            Operations operations = new Operations();
+
+                            try {
+                                operations.send(text, selectedContact.getPublicAddress(), getApplicationContext());
+                            } catch (Exception e) {
+                                e.printStackTrace();
                             }
-                        })
-                        .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int id) {
 
-                            }
-                        }).setTitle("Send to: "+globalValues.getMatchedContacts().get(tempLong.intValue()).getDisplayName());
-
-                AlertDialog dialog = builder.create();
-
-                dialog.show();
+                        }
 
 
+
+                    }
+                });
+
+                builder.setTitle("Send to " + selectedContact.getDisplayName());
+                builder.setMessage("Balance: " + NumberUtil.getRawAsUsableString(globalValues.getBalance()));
+                builder.show();
             }
         });
 

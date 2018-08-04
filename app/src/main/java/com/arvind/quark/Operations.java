@@ -39,7 +39,6 @@ public class Operations {
         sendBlock.put("representative", globalValues.getRepresentative());
 
         BigDecimal power = new BigDecimal("10").pow(24);
-
         BigInteger balance = new BigInteger(globalValues.getBalance());
         BigInteger amountTemp = new BigDecimal(amount).multiply(power).toBigIntegerExact();
 
