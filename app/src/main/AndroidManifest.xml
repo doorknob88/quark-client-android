@@ -18,11 +18,12 @@
         <activity
             android:name=".MainActivity"
             android:label="@string/title_activity_main"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
-        <activity android:name=".auth.RegisterActivity"></activity>
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity android:name=".auth.RegisterActivity" />
         <activity android:name=".auth.LoginActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
@@ -37,7 +38,11 @@
         <activity
             android:name=".SendActivity"
             android:label="@string/title_activity_send"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+            android:theme="@style/AppTheme.NoActionBar" />
+
+        <service
+            android:name=".PollService"
+            android:exported="false"></service>
     </application>
 
 </manifest>

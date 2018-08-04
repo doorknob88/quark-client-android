@@ -6,8 +6,11 @@ import android.util.Log;
 
 import com.arvind.quark.models.Contact;
 import com.arvind.quark.util.Encryption;
+import com.arvind.quark.util.NanoUtil;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+
+import org.json.JSONObject;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -26,8 +29,10 @@ public class GlobalValues {
     private String userName;
     private HashMap<String, Contact> contactMap;
     private ArrayList<Contact> matchedContacts;
-    private String hostURL = "http://quark.cash";
-
+    private String hostURL = "http://192.168.0.116:3000";
+    private String balance;
+    private String representative = "xrb_1nanode8ngaakzbck8smq6ru9bethqwyehomf79sae1k7xd47dkidjqzffeg";
+    private String frontier;
 
     public String getPhoneNumber() {
         return phoneNumber;
@@ -38,7 +43,7 @@ public class GlobalValues {
     }
 
     public String getPublicAddress() {
-        return publicAddress;
+        return NanoUtil.publicToAddress(NanoUtil.privateToPublic(NanoUtil.seedToPrivate(seed)));
     }
 
     public String getSeed() {
@@ -77,6 +82,7 @@ public class GlobalValues {
         assert firebaseUser != null;
         Encryption encryption = new Encryption(firebaseUser.getUid());
         try {
+            if (encryptedSeed != null)
             this.seed = encryption.decrypt(encryptedSeed);
         } catch (Exception e) {
             e.printStackTrace();
@@ -102,5 +108,34 @@ public class GlobalValues {
             matchedContacts = new ArrayList<>();
         }
         return matchedContacts;
+    }
+
+    public String getBalance() {
+        if (balance == null){
+            balance = "0";
+        }
+
+        return balance;
+    }
+
+    public void setBalance(String balance) {
+        this.balance = balance;
+    }
+
+
+    public String getRepresentative() {
+        return representative;
+    }
+
+    public void setRepresentative(String representative) {
+        this.representative = representative;
+    }
+
+    public String getFrontier() {
+        return frontier;
+    }
+
+    public void setFrontier(String frontier) {
+        this.frontier = frontier;
     }
 }

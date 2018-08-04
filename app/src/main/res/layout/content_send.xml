@@ -11,18 +11,30 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="horizontal">
+        android:orientation="vertical">
+
         <EditText
             android:id="@+id/search"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:hint="@string/search"
             android:inputType="phone" />
+
         <ListView
             android:id="@+id/search_result_list"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="match_parent"
+            android:visibility="visible">
+
         </ListView>
+        <TextView
+            android:id="@+id/no_contacts_found"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="You have no Contacts on Quark :("
+            android:visibility="visible"/>
     </LinearLayout>
+
+
 
 </android.support.constraint.ConstraintLayout>

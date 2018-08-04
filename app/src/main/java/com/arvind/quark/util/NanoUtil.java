@@ -78,6 +78,7 @@ public class NanoUtil {
      * @param account        Account address
      * @return Open Hash
      */
+
     public static String computeOpenHash(String source, String representative, String account) {
         Sodium sodium = NaCl.sodium();
         byte[] state = new byte[Sodium.crypto_generichash_statebytes()];

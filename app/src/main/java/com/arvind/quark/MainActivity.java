@@ -2,6 +2,7 @@ package com.arvind.quark;
 
 import android.Manifest;
 import android.arch.lifecycle.LiveData;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -39,6 +40,7 @@ import com.arvind.quark.auth.LoginActivity;
 import com.arvind.quark.models.Contact;
 import com.arvind.quark.models.ContactModel;
 import com.arvind.quark.settings.SettingsActivity;
+import com.arvind.quark.util.NanoUtil;
 import com.firebase.ui.auth.util.data.PhoneNumberUtils;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -52,6 +54,7 @@ import org.json.JSONObject;
 
 import java.io.Console;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -70,7 +73,6 @@ public class MainActivity extends AppCompatActivity
         globalValues = GlobalValues.getInstance().getValues(getApplicationContext());
         requestQueue = Volley.newRequestQueue(getApplicationContext());
         FloatingActionButton fab = findViewById(R.id.fab);
-
         Cursor phones = getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null,null,null, null);
         while (phones.moveToNext())
         {
@@ -82,13 +84,22 @@ public class MainActivity extends AppCompatActivity
         }
         phones.close();
 
-        fab.setOnClickListener(new View.OnClickListener() {
+        matchContacts();
 
+        fab.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View view) {
 
-                matchContacts();
+                //Intent intent = new Intent(getApplicationContext(), SendActivity.class);
+                //startActivity(intent);
+
+                Operations operations = new Operations();
+                try {
+                    operations.send("0.000004", "xrb_35pqaeetu97shyr6twaip4o1yrcfwa89ezzg9gdcdjneu43mhuo61k91b583", getApplicationContext());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
 
                 Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
@@ -96,6 +107,7 @@ public class MainActivity extends AppCompatActivity
         });
 
         TextView sharedPref_view = findViewById(R.id.SharedPref_view);
+        TextView balance_view = findViewById(R.id.balance);
 
         String text = "Global Values: "
                 +"\n Seed: "+ globalValues.getSeed()
@@ -103,8 +115,15 @@ public class MainActivity extends AppCompatActivity
                 +"\n Phone Number: "+globalValues.getPhoneNumber()
                 +"\n UserName :"+globalValues.getUserName();
 
-        sharedPref_view.setText(text);
 
+
+        Log.i(TAG, "SEED: "+globalValues.getSeed());
+        Log.i(TAG, "PUBLIC ADDRESS: "+globalValues.getPublicAddress());
+        Log.i(TAG, "Private Key: "+ NanoUtil.seedToPrivate(globalValues.getSeed()));
+
+
+        sharedPref_view.setText(text);
+        //balance_view.setText(globalValues.getBalance());
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
@@ -113,6 +132,9 @@ public class MainActivity extends AppCompatActivity
 
         NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+        Intent intent = new Intent(this, PollService.class);
+        startService(intent);
     }
 
     @Override
@@ -184,14 +206,15 @@ public class MainActivity extends AppCompatActivity
 
     private void matchContacts(){
 
-        JSONObject jsonObject = new JSONObject();
+        final JSONObject jsonObject = new JSONObject();
         for (Map.Entry<String, Contact> entry : globalValues.getContactMap().entrySet()) {
             String key = entry.getKey();
             Contact value = entry.getValue();
             try {
+                if (value.getPhoneNumber() != null)
                 jsonObject.put(value.getPhoneNumber(), key);
 
-            } catch (JSONException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }
@@ -209,18 +232,35 @@ public class MainActivity extends AppCompatActivity
                 (globalValues.getHostURL()+"/contacts", jsonObject, new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
-                        if (response.has("found")){
-                            try {
-                                JSONArray results = response.getJSONArray("matched");
-                                if (results.length() > 0){
-                                    for(int i = 0; i < results.length(); i++){
-                                        Log.i(TAG, "Matched!");
-                                        Log.i(TAG, results.getString(i));
+                        if (response.length() > 0){
+                            Iterator<String> keys = response.keys();
+
+                            while (keys.hasNext()){
+                                String key = (String) keys.next();
+                                try {
+                                    if ( response.get(key) instanceof JSONObject ) {
+
+                                        Contact temp = globalValues.getContactMap().get(key);
+                                        JSONObject matchedObject = response.getJSONObject(key);
+
+                                        temp.setUserName((String) matchedObject.get("username"));
+                                        temp.setPublicAddress((String) matchedObject.get("publicAddress"));
+                                        globalValues.getMatchedContacts().add(temp);
+
+                                        for (int i = 0; i < globalValues.getMatchedContacts().size(); i++){
+                                            Log.i(TAG, "Matched Contact:");
+                                            Log.i(TAG, globalValues.getMatchedContacts().get(i).getUserName()+ " "
+                                                            + globalValues.getMatchedContacts().get(i).getPublicAddress() + " "
+                                                            + globalValues.getMatchedContacts().get(i).getDisplayName());
+                                        }
+
+
                                     }
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
                                 }
-                            } catch (JSONException e) {
-                                e.printStackTrace();
                             }
+
                         }
                     }
                 }, new Response.ErrorListener() {

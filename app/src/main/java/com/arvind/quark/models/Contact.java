@@ -15,7 +15,7 @@ public class Contact {
 
     @Override
     public String toString() {
-        return "Contact(id=" + contactId + ", displayName=" + displayName + ", phoneNumber=" + phoneNumber + ")";
+        return displayName;
     }
 
     public String getContactId() {

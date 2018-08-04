@@ -117,6 +117,7 @@ public class RegisterActivity extends AppCompatActivity {
                                                         editor.putString("username", response.getString("username")).commit();
                                                         editor.putString("phoneNumber", firebaseUser.getPhoneNumber()).commit();
 
+
                                                         Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
                                                         startActivity(intent);
                                                         finish();
