@@ -91,15 +91,8 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void onClick(View view) {
 
-                //Intent intent = new Intent(getApplicationContext(), SendActivity.class);
-                //startActivity(intent);
-
-                Operations operations = new Operations();
-                try {
-                    operations.send("0.000004", "xrb_35pqaeetu97shyr6twaip4o1yrcfwa89ezzg9gdcdjneu43mhuo61k91b583", getApplicationContext());
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+                Intent intent = new Intent(getApplicationContext(), SendActivity.class);
+                startActivity(intent);
 
                 Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
