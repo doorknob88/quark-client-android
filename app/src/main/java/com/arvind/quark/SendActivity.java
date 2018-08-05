@@ -134,9 +134,6 @@ public class SendActivity extends AppCompatActivity {
                             }
 
                         }
-
-
-
                     }
                 });
 
