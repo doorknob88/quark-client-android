@@ -29,7 +29,7 @@ public class GlobalValues {
     private String userName;
     private HashMap<String, Contact> contactMap;
     private ArrayList<Contact> matchedContacts;
-    private String hostURL = "http://192.168.0.116:3000";
+    private String hostURL = "http://quark.cash";
     private String balance;
     private String representative = "xrb_1nanode8ngaakzbck8smq6ru9bethqwyehomf79sae1k7xd47dkidjqzffeg";
     private String frontier;

@@ -66,6 +66,7 @@ public class MainActivity extends AppCompatActivity
     GlobalValues globalValues;
     String TAG = this.getClass().getName();
     RequestQueue requestQueue;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
