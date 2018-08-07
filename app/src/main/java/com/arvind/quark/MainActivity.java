@@ -2,6 +2,7 @@ package com.arvind.quark;
 
 import android.Manifest;
 import android.arch.lifecycle.LiveData;
+import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -131,13 +132,27 @@ public class MainActivity extends AppCompatActivity
         });
 
         TextView sharedPref_view = findViewById(R.id.SharedPref_view);
-
+        Button copyPublicKey = findViewById(R.id.public_key_copy_button);
         String text = "Balance: " + globalValues.getBalance();
 
         Log.i(TAG, "SEED: "+globalValues.getSeed());
         Log.i(TAG, "PUBLIC ADDRESS: "+globalValues.getPublicAddress());
         Log.i(TAG, "Private Key: "+ NanoUtil.seedToPrivate(globalValues.getSeed()));
 
+        copyPublicKey.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ClipboardManager clipboard = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
+                clipboard.setText(globalValues.getPublicAddress());
+                Context context = getApplicationContext();
+                CharSequence text = "Public Key Copied! Send Funds to this address";
+                int duration = Toast.LENGTH_LONG;
+
+                Toast toast = Toast.makeText(context, text, duration);
+                toast.show();
+
+            }
+        });
 
         sharedPref_view.setText(text);
         //balance_view.setText(globalValues.getBalance());

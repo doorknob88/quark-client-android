@@ -93,7 +93,7 @@ public class LoginActivity extends AppCompatActivity {
     private void connectToServer(){
         final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         assert user != null;
-        user.getIdToken(true).addOnSuccessListener(new OnSuccessListener<GetTokenResult>() {
+        user.getIdToken(false).addOnSuccessListener(new OnSuccessListener<GetTokenResult>() {
             @Override
             public void onSuccess(GetTokenResult getTokenResult) {
                 try {

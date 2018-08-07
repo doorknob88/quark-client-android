@@ -65,7 +65,7 @@ public class RegisterActivity extends AppCompatActivity {
                 assert firebaseUser != null;
                 phoneNumber = firebaseUser.getPhoneNumber();
                 if (username.getText().toString().length() > 4) {
-                    firebaseUser.getIdToken(true).addOnSuccessListener(new OnSuccessListener<GetTokenResult>() {
+                    firebaseUser.getIdToken(false).addOnSuccessListener(new OnSuccessListener<GetTokenResult>() {
                         @RequiresApi(api = Build.VERSION_CODES.KITKAT)
                         @Override
                         public void onSuccess(GetTokenResult getTokenResult) {

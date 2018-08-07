@@ -15,10 +15,21 @@
             android:layout_height="wrap_content"
             android:id="@+id/sign_out_button"/>
     -->
-    <TextView
-        android:textSize="20sp"
-        android:id="@+id/SharedPref_view"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:orientation="vertical"
+        android:layout_height="match_parent">
+
+        <TextView
+            android:textSize="60sp"
+            android:id="@+id/SharedPref_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+        <Button
+            android:id="@+id/public_key_copy_button"
+            android:layout_width="wrap_content"
+            android:text="Get funds from external source."
+            android:layout_height="wrap_content" />
+    </LinearLayout>
 
 </android.support.constraint.ConstraintLayout>
