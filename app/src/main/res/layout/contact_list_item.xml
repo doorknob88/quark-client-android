@@ -6,6 +6,7 @@
     <TextView
         android:id="@+id/contact_display_name"
         android:layout_width="match_parent"
+        android:textSize="30dp"
         android:layout_height="match_parent" />
     <TextView
         android:id="@+id/contact_user_name"

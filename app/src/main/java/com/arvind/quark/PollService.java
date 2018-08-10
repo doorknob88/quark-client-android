@@ -40,7 +40,6 @@ public class PollService extends IntentService {
         super("PollService");
     }
 
-
     @Override
     protected void onHandleIntent(Intent intent) {
         globalValues = GlobalValues.getInstance();
@@ -78,11 +77,14 @@ public class PollService extends IntentService {
                     public void onResponse(JSONObject response) {
 
                         if (response.has("error")){
+
                             try {
-                                if (response.get("error") == "Account not found"){
+                                if (response.get("error").equals("Account not found")){
                                     globalValues.setFrontier("0");
                                     globalValues.setBalance("0");
+                                    Log.i(TAG, "Account Does not exist!");
                                     getBalance();
+
                                     //receive();
                                 }
 
@@ -105,6 +107,11 @@ public class PollService extends IntentService {
 
                                 if ( pendingBigInt.compareTo(new BigInteger("0")) > 0 ){
                                     Log.i(TAG, "Balance Pending");
+                                    CharSequence text = "Funds Pending! Processing (This could take a little while):  "+ NumberUtil.getRawAsUsableString(pending);
+                                    int duration = Toast.LENGTH_SHORT;
+                                    Toast toast = null;
+                                    toast = Toast.makeText(getApplicationContext(), text, duration);
+                                    toast.show();
                                     receive();
                                 }else {
                                     doing = false;
@@ -146,7 +153,7 @@ public class PollService extends IntentService {
                         if (response.has("blocks")){
                             Log.i(TAG, "Response: " + response.toString());
                             try {
-                            String pending = "";
+                            String pending;
                                 JSONObject blocks = response.getJSONObject("blocks");
                             if (blocks.length() > 0){
                                 Iterator<String> keys = blocks.keys();
@@ -205,15 +212,14 @@ public class PollService extends IntentService {
                                                                         }
 
                                                                         if (response.has("hash")) {
-
-                                                                            CharSequence text = "Funds Received!";
-                                                                            int duration = Toast.LENGTH_SHORT;
-                                                                            Toast toast = null;
-                                                                            toast = Toast.makeText(getApplicationContext(), text, duration);
-                                                                            toast.show();
                                                                             doing = false;
                                                                             try {
                                                                                 globalValues.setFrontier(response.getString("hash"));
+                                                                                CharSequence text = "Funds Received! Refresh app to see updated funds!";
+                                                                                int duration = Toast.LENGTH_SHORT;
+                                                                                Toast toast = null;
+                                                                                toast = Toast.makeText(getApplicationContext(), text, duration);
+                                                                                toast.show();
                                                                             } catch (JSONException e) {
                                                                                 e.printStackTrace();
                                                                             }
@@ -227,9 +233,16 @@ public class PollService extends IntentService {
                                                                         doing = false;
                                                                     }
                                                                 });
-                                                        processObjectRequest.setRetryPolicy(new DefaultRetryPolicy(10000,
+
+                                                        int duration = Toast.LENGTH_SHORT;
+                                                        Toast toast = null;
+                                                        toast = Toast.makeText(getApplicationContext(), "Receive Block created! Pushing to network.....", duration);
+                                                        toast.show();
+
+                                                        processObjectRequest.setRetryPolicy(new DefaultRetryPolicy(20000,
                                                                 DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
                                                                 DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+                                                        Log.i(TAG, "Processing a receive block!");
                                                         requestQueue.add(processObjectRequest);
                                                     }
                                                 }
@@ -239,9 +252,16 @@ public class PollService extends IntentService {
                                                     doing = false;
                                                 }
                                             });
-                                    createObjectRequest.setRetryPolicy(new DefaultRetryPolicy(10000,
+
+                                    int duration = Toast.LENGTH_SHORT;
+                                    Toast toast = null;
+                                    toast = Toast.makeText(getApplicationContext(), "Generating a Receive block on the server...", duration);
+                                    toast.show();
+
+                                    createObjectRequest.setRetryPolicy(new DefaultRetryPolicy(20000,
                                             DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
                                             DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+                                    Log.i(TAG, "Creating a receive block!");
                                     requestQueue.add(createObjectRequest);
 
                                 }
@@ -263,7 +283,7 @@ public class PollService extends IntentService {
 
                     }
                 });
-        pendingObjectRequest.setRetryPolicy(new DefaultRetryPolicy(10000,
+        pendingObjectRequest.setRetryPolicy(new DefaultRetryPolicy(20000,
                 DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
                 DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
         requestQueue.add(pendingObjectRequest);
@@ -309,6 +329,8 @@ public class PollService extends IntentService {
                         }else {
                             doing = false;
                         }
+
+                        Log.i(TAG, "Getting Balance " + response.toString());
 
                     }
                 }, new Response.ErrorListener() {

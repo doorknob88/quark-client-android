@@ -43,6 +43,7 @@ import com.arvind.quark.models.Contact;
 import com.arvind.quark.models.ContactModel;
 import com.arvind.quark.settings.SettingsActivity;
 import com.arvind.quark.util.NanoUtil;
+import com.arvind.quark.util.NumberUtil;
 import com.firebase.ui.auth.util.data.PhoneNumberUtils;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -126,14 +127,12 @@ public class MainActivity extends AppCompatActivity
                 Intent intent = new Intent(getApplicationContext(), SendActivity.class);
                 startActivity(intent);
 
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
             }
         });
 
         TextView sharedPref_view = findViewById(R.id.SharedPref_view);
         Button copyPublicKey = findViewById(R.id.public_key_copy_button);
-        String text = "Balance: " + globalValues.getBalance();
+        String text = "Balance: " + NumberUtil.getRawAsUsableString(globalValues.getBalance());
 
         Log.i(TAG, "SEED: "+globalValues.getSeed());
         Log.i(TAG, "PUBLIC ADDRESS: "+globalValues.getPublicAddress());

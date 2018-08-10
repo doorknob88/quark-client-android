@@ -11,6 +11,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.arvind.quark.util.NanoUtil;
+import com.arvind.quark.util.NumberUtil;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -38,19 +39,20 @@ public class Operations {
         sendBlock.put("account", globalValues.getPublicAddress());
         sendBlock.put("representative", globalValues.getRepresentative());
 
-        BigDecimal power = new BigDecimal("10").pow(24);
-        BigInteger balance = new BigInteger(globalValues.getBalance());
-        BigInteger amountTemp = new BigDecimal(amount).multiply(power).toBigIntegerExact();
+        BigDecimal power = new BigDecimal("10").pow(30);
+        BigDecimal balance = NumberUtil.getRawAsUsableAmount(globalValues.getBalance());
+        BigDecimal amountTemp = new BigDecimal(amount);
+        BigDecimal newBalance = balance.subtract(amountTemp);
+        BigInteger newBalanceInRaw = NumberUtil.getAmountAsRawBigInteger(newBalance.toString());
 
+        Log.i(TAG, "In Operations");
         Log.i(TAG, "Balance: " + balance.toString());
         Log.i(TAG, "amount " + amountTemp.toString());
+        Log.i(TAG, "New Balance: " + newBalance.toString());
+        Log.i(TAG, "New Balance in raw: " + newBalanceInRaw.toString());
 
-        if (amountTemp.compareTo(balance) != -1){
-            return ;
-        }
-
-        BigInteger newBalance = balance.subtract(amountTemp);
-        sendBlock.put("balance" , newBalance.toString());
+        sendBlock.put("balance" , newBalanceInRaw.toString());
+//        sendBlock.put("balance" , "0");
 
         sendBlock.put("link", destination);
         sendBlock.put("key", NanoUtil.seedToPrivate(globalValues.getSeed()));
@@ -62,6 +64,11 @@ public class Operations {
                     public void onResponse(JSONObject response) {
 
                         if (response.has("hash")){
+
+                            int duration = Toast.LENGTH_SHORT;
+                            Toast toast = null;
+                            toast = Toast.makeText(context, "Send Block created! Pushing to network.....", duration);
+                            toast.show();
 
                             JSONObject processBlock = new JSONObject();
                             try {
@@ -86,10 +93,9 @@ public class Operations {
                                         }
 
                                         if (response.has("hash")){
-                                            CharSequence text = "Done!";
                                             int duration = Toast.LENGTH_SHORT;
                                             Toast toast = null;
-                                                toast = Toast.makeText(context, text, duration);
+                                            toast = Toast.makeText(context, "Done! Refresh the app to see your new balance!", duration);
                                             toast.show();
                                         }
                                     }
@@ -120,6 +126,10 @@ public class Operations {
                     }
                 });
 
+        int duration = Toast.LENGTH_SHORT;
+        Toast toast = null;
+        toast = Toast.makeText(context, "Generating block remotely on server", duration);
+        toast.show();
         jsonObjectRequest.setRetryPolicy(new DefaultRetryPolicy(50000,
                 DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
                 DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));

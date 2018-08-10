@@ -85,7 +85,7 @@ public class SendActivity extends AppCompatActivity {
                 LayoutInflater inflater = SendActivity.this.getLayoutInflater();
 
                 final EditText input = new EditText(getApplicationContext());
-                input.setInputType(InputType.TYPE_CLASS_NUMBER);
+                input.setInputType(InputType.TYPE_NUMBER_FLAG_DECIMAL);
                 LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
                         LinearLayout.LayoutParams.MATCH_PARENT,
                         LinearLayout.LayoutParams.MATCH_PARENT);
@@ -105,20 +105,29 @@ public class SendActivity extends AppCompatActivity {
                     public void onClick(DialogInterface dialog, int which) {
                         String text = input.getText().toString();
 
-                        BigDecimal power = new BigDecimal("10").pow(24);
-                        BigInteger balance = new BigInteger(globalValues.getBalance());
-                        BigInteger amountTemp = new BigDecimal(text).multiply(power).toBigIntegerExact();
+                        //BigDecimal power = new BigDecimal("10").pow(30);
+                        //BigDecimal balance = new BigDecimal(NumberUtil.getRawAsUsableString(globalValues.getBalance()));
+                        //BigDecimal amountTemp = new BigDecimal(text);
+                        //BigInteger amountTemp = NumberUtil.getAmountAsRawBigInteger(text);
 
-                        Log.i(TAG, "Balance: " + balance.toString());
-                        Log.i(TAG, "amount " + amountTemp.toString());
+                        //Log.i(TAG, "Balance: " + balance.toString());
+                        //Log.i(TAG, "amount " + amountTemp.toString());
 
-                        if (amountTemp.compareTo(balance) == -1){
+                        BigDecimal balance = NumberUtil.getRawAsUsableAmount(globalValues.getBalance());
+                        BigDecimal amountTemp = new BigDecimal(text);
+                        BigDecimal newBalance = balance.subtract(amountTemp);
+                        BigInteger newBalanceInRaw = NumberUtil.getAmountAsRawBigInteger(newBalance.toString());
 
+                        if (newBalanceInRaw.compareTo(new BigInteger("0")) < 0){
+                            
                             int duration = Toast.LENGTH_SHORT;
                             Toast toast = null;
+                            Log.i(TAG, "Balance: " + balance.toString());
+                            Log.i(TAG, "Amount to send in raw: "+ amountTemp.toString());
                             toast = Toast.makeText(getApplicationContext(), "Insufficient Funds or out of sync. Try again.", duration);
                             toast.show();
                             return ;
+
                         }else {
                             int duration = Toast.LENGTH_SHORT;
                             Toast toast = null;
